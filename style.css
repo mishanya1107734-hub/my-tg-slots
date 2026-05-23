@@ -1,7 +1,7 @@
-body {
-    background-color: #1a1a2e;
+\body {
+    background: radial-gradient(circle, #1a1c29 0%, #0f1016 100%);
     color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,205 +9,236 @@ body {
     margin: 0;
     padding: 10px;
     box-sizing: border-box;
-    overflow: hidden;
 }
 
-/* Контейнер теперь отлично тянется и под ПК, и под узкий мобильный экран */
 .casino-container {
     text-align: center;
-    background: #16213e;
+    background: #1f2335;
     padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
-    border: 3px solid #e94560;
+    border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255,255,255,0.1);
+    border: 2px solid #3d4466;
     width: 100%;
-    max-width: 360px; /* Идеальный размер мобильного приложения */
+    max-width: 360px;
     box-sizing: border-box;
 }
 
 h1 {
-    color: #e94560;
-    font-size: 24px;
+    color: #4cc9f0;
+    font-size: 26px;
     margin: 0 0 15px 0;
-    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+    font-weight: 800;
 }
 
 .balance-container {
-    font-size: 22px;
-    margin-bottom: 15px;
+    font-size: 20px;
+    margin-bottom: 20px;
     font-weight: bold;
-    background: #0f3460;
-    padding: 8px;
-    border-radius: 10px;
-    border: 1px dashed #e94560;
+    background: #161925;
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid #2e344e;
+    color: #f72585;
+    text-shadow: 0 0 5px rgba(247, 37, 133, 0.3);
+}
+
+/* Обертка для позиционирования точек линий */
+.slot-machine-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+/* Точки индикации линий */
+.line-indicators {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 240px;
+}
+
+.line-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #3d4466;
+    font-size: 11px;
+    line-height: 22px;
+    text-align: center;
+    font-weight: bold;
+    color: #aaa;
+    transition: 0.3s;
+}
+.line-dot.active {
+    background: #4cc9f0;
+    color: #000;
+    box-shadow: 0 0 8px #4cc9f0;
 }
 
 .slot-machine {
     display: flex;
+    flex: 1;
     justify-content: center;
-    background: #0b1426;
-    padding: 15px;
-    border-radius: 15px;
-    border: 3px solid #252a44;
+    background: #10121a;
+    padding: 12px;
+    border-radius: 18px;
+    border: 2px solid #2e344e;
     gap: 10px;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
 }
 
 .reel {
-    width: 85px;
+    flex: 1;
     height: 240px; 
     background: #ffffff;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden; 
-    border: 2px solid #1a1a2e;
+    border: 1px solid #2e344e;
     position: relative;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
 }
 
 .reel-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 0; left: 0; width: 100%;
     transition: top 2.5s cubic-bezier(0.25, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
 }
 
 .symbol {
-    font-size: 45px;
+    font-size: 44px;
     height: 80px;
     line-height: 80px;
     text-align: center;
     user-select: none;
 }
 
-.controls {
-    margin-top: 20px;
+.control-label {
+    font-size: 11px;
+    color: #7a82ab;
+    text-align: left;
+    margin: 10px 0 5px 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.bet-selection {
+.selector-row {
     display: flex;
     justify-content: space-between;
-    gap: 5px;
-    margin-bottom: 15px;
+    gap: 6px;
+    margin-bottom: 10px;
 }
 
-.bet-btn {
-    background: #252a44;
-    color: #fff;
+.bet-btn, .line-btn {
+    background: #2a2f45;
+    color: #cbd5e1;
     font-size: 13px;
     padding: 10px 5px;
     flex: 1;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid #3d4466;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: bold;
-    box-shadow: 0 3px #121526;
+    transition: 0.2s;
 }
 
-.bet-btn.active {
-    background: #00b4d8;
-    box-shadow: 0 3px #0077b6;
-    border: 1px solid #fff;
+.bet-btn.active, .line-btn.active {
+    background: linear-gradient(135deg, #4cc9f0, #4895ef);
+    color: #fff;
+    border-color: #4cc9f0;
+    box-shadow: 0 4px 10px rgba(76, 201, 240, 0.3);
 }
+
+.total-bet-badge {
+    background: #161925;
+    padding: 6px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 15px;
+    border: 1px solid #2e344e;
+}
+#total-bet { color: #fff; font-weight: bold; }
 
 #spin-btn {
-    background: #e94560;
+    background: linear-gradient(135deg, #f72585, #b5179e);
     color: white;
     border: none;
-    padding: 15px;
+    padding: 16px;
     font-size: 18px;
     font-weight: bold;
-    border-radius: 12px;
+    border-radius: 14px;
     cursor: pointer;
     width: 100%;
-    box-shadow: 0 5px #951c32;
+    box-shadow: 0 4px 15px rgba(247, 37, 133, 0.4);
     text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: 0.1s;
 }
 
 #spin-btn:active:not(:disabled) {
-    box-shadow: 0 2px #951c32;
-    transform: translateY(3px);
+    transform: scale(0.98);
+    box-shadow: 0 2px 5px rgba(247, 37, 133, 0.4);
 }
 
 #spin-btn:disabled {
-    background: #4a4e69;
+    background: #3d4466;
+    color: #7a82ab;
     box-shadow: none;
     cursor: not-allowed;
 }
 
 .message {
     margin-top: 15px;
-    font-size: 16px;
-    font-weight: bold;
-    min-height: 24px;
+    font-size: 15px;
+    font-weight: 600;
+    min-height: 22px;
+    color: #cbd5e1;
 }
-.win { color: #4e9f3d; }
-.lose { color: #e94560; }
+.win { color: #4ecdc4; text-shadow: 0 0 5px rgba(78,205,196,0.3); }
+.lose { color: #f72585; }
 
-/* Иконка информации сверху справа */
 .info-icon {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    background: #252a44;
-    border: 1px solid #e94560;
+    top: 15px; right: 15px;
+    background: #2a2f45;
+    border: 1px solid #3d4466;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     padding: 8px 12px;
     border-radius: 50%;
     cursor: pointer;
-    z-index: 10;
 }
 
-/* Модальное окно (Таблица выигрышей) */
+/* Модалка */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(15, 16, 22, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
-    opacity: 0;
-    pointer-events: none;
+    opacity: 0; pointer-events: none;
     transition: 0.3s;
     z-index: 100;
 }
-
-.modal-overlay.open {
-    opacity: 1;
-    pointer-events: auto;
-}
-
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
 .modal-content {
-    background: #16213e;
+    background: #1f2335;
     padding: 25px;
-    border-radius: 15px;
-    border: 2px solid #00b4d8;
-    width: 90%;
-    max-width: 300px;
+    border-radius: 20px;
+    border: 2px solid #4cc9f0;
+    width: 90%; max-width: 300px;
     text-align: center;
 }
-
-.pay-table {
-    width: 100%;
-    margin: 15px 0;
-    border-collapse: collapse;
-}
-
-.pay-table th, .pay-table td {
-    padding: 8px;
-    border-bottom: 1px solid #252a44;
-    font-size: 14px;
-}
-
-.pay-table th { color: #00b4d8; }
-
+.pay-table { width: 100%; margin: 15px 0; border-collapse: collapse; }
+.pay-table th, .pay-table td { padding: 10px; border-bottom: 1px solid #2e344e; font-size: 14px; }
+.pay-table th { color: #4cc9f0; }
 #close-modal-btn {
-    background: #e94560;
-    color: white;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 5px;
-    cursor: pointer;
+    background: #f72585; color: white; border: none;
+    padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: bold;
 }

@@ -1,14 +1,17 @@
-const symbols = ['🍒', '🍋', '🍇', '🍉', '💎', '7️⃣'];
+// Новые крутые иконки животных
+const symbols = ['🦁', '🐼', '🦊', '🐸', '🐵', '🐰'];
 
 let balance = parseInt(localStorage.getItem('casino_balance')) || 1000;
-let bet = 10; 
+let betPerLine = 10; 
+let activeLines = 1;
 
 const balanceDisplay = document.getElementById('balance');
+const totalBetDisplay = document.getElementById('total-bet');
 const spinBtn = document.getElementById('spin-btn');
 const messageDisplay = document.getElementById('message');
 const betButtons = document.querySelectorAll('.bet-btn');
+const lineButtons = document.querySelectorAll('.line-btn');
 
-// Элементы модального окна
 const modal = document.getElementById('modal');
 const infoBtn = document.getElementById('info-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
@@ -22,126 +25,119 @@ const reels = [
 const symbolHeight = 80; 
 balanceDisplay.innerText = balance;
 
-// 🔊 СИНТЕЗАТОР ЗВУКОВ (Web Audio API)
+// Звуковой движок
 let audioCtx = null;
+function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
-function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-}
-
-// Звук "пиканья" при прокрутке барабана
 function playTickSound(frequency = 300, duration = 0.05) {
-    initAudio();
-    if (!audioCtx) return;
-    
-    let osc = audioCtx.createOscillator();
-    let gain = audioCtx.createGain();
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-    
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    initAudio(); if (!audioCtx) return;
+    let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
 
-// Праздничный звук выигрыша
 function playWinSound() {
     initAudio();
-    let now = audioCtx.currentTime;
-    // Играем красивое мажорное арпеджио (три быстрых ноты вверх)
-    setTimeout(() => playTickSound(523.25, 0.15), 0);   // Нота До
-    setTimeout(() => playTickSound(659.25, 0.15), 150); // Нота Ми
-    setTimeout(() => playTickSound(783.99, 0.15), 300); // Нота Соль
-    setTimeout(() => playTickSound(1046.50, 0.4), 450); // Нота До (октавой выше)
+    setTimeout(() => playTickSound(587.33, 0.12), 0);
+    setTimeout(() => playTickSound(739.99, 0.12), 120);
+    setTimeout(() => playTickSound(880.00, 0.12), 240);
+    setTimeout(() => playTickSound(1174.66, 0.3), 360);
+}
+
+function updateLayout() {
+    totalBetDisplay.innerText = betPerLine * activeLines;
+    // Подсвечиваем точки-индикаторы линий слева от барабанов
+    for (let i = 1; i <= 3; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        if (i <= activeLines) dot.classList.add('active');
+        else dot.classList.remove('active');
+    }
 }
 
 function initReels() {
     reels.forEach(reel => {
-        reel.style.transition = 'none';
-        reel.style.top = '0px';
-        reel.innerHTML = '';
+        reel.style.transition = 'none'; reel.style.top = '0px'; reel.innerHTML = '';
         for (let i = 0; i < 3; i++) {
             const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
             const div = document.createElement('div');
-            div.className = 'symbol';
-            div.innerText = randomSymbol;
+            div.className = 'symbol'; div.innerText = randomSymbol;
             reel.appendChild(div);
         }
     });
+    updateLayout();
 }
 
-// Управление модальным окном (Таблица выигрышей)
-infoBtn.addEventListener('click', () => {
-    initAudio(); // Активируем аудиоконтекст по клику пользователя
-    modal.classList.add('open');
-});
-closeModalBtn.addEventListener('click', () => modal.classList.remove('open'));
-
-// Выбор ставки
-betButtons.forEach(button => {
+// Переключение линий
+lineButtons.forEach(button => {
     button.addEventListener('click', () => {
         if (spinBtn.disabled) return;
-        playTickSound(400, 0.05); // Звук клика по ставке
-        document.querySelector('.bet-btn.active').classList.remove('active');
+        playTickSound(450, 0.04);
+        document.querySelector('.line-btn.active').classList.remove('active');
         button.classList.add('active');
-        bet = parseInt(button.getAttribute('data-bet'));
+        activeLines = parseInt(button.getAttribute('data-lines'));
+        updateLayout();
     });
 });
 
-function saveBalance() {
-    localStorage.setItem('casino_balance', balance);
-}
+// Переключение ставок
+betButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        if (spinBtn.disabled) return;
+        playTickSound(400, 0.04);
+        document.querySelector('.bet-btn.active').classList.remove('active');
+        button.classList.add('active');
+        betPerLine = parseInt(button.getAttribute('data-bet'));
+        updateLayout();
+    });
+});
+
+infoBtn.addEventListener('click', () => { initAudio(); modal.classList.add('open'); });
+closeModalBtn.addEventListener('click', () => modal.classList.remove('open'));
+function saveBalance() { localStorage.setItem('casino_balance', balance); }
 
 spinBtn.addEventListener('click', () => {
     initAudio();
-    if (balance < bet) {
-        messageDisplay.innerText = "🚨 Не хватает монет! Получи бонус 500 фантиков.";
+    const totalBet = betPerLine * activeLines;
+
+    if (balance < totalBet) {
+        messageDisplay.innerText = "🚨 Мало монет! Начислен бонус 500 фантиков.";
         messageDisplay.className = "message lose";
-        balance = 500;
-        balanceDisplay.innerText = balance;
-        saveBalance();
+        balance = 500; balanceDisplay.innerText = balance; saveBalance();
         return;
     }
 
-    balance -= bet;
+    balance -= totalBet;
     balanceDisplay.innerText = balance;
     saveBalance();
     
     spinBtn.disabled = true;
-    messageDisplay.innerText = "🎰 Крутим барабаны...";
+    messageDisplay.innerText = "🐾 Охота началась, крутим...";
     messageDisplay.className = "message";
 
-    const finalResult = [];
+    // Двумерный массив, куда соберем ВСЕ видимые в конце символы (3 барабана х 3 строки)
+    const finalMatrix = [[], [], []]; 
 
-    // Звуковое сопровождение кручения (серия быстрых щелчков)
-    let tickInterval = setInterval(() => {
-        playTickSound(200 + Math.random() * 100, 0.03);
-    }, 120);
+    let tickInterval = setInterval(() => { playTickSound(250 + Math.random() * 80, 0.02); }, 100);
 
     reels.forEach((reel, reelIndex) => {
-        reel.style.transition = 'none';
-        reel.style.top = '0px';
-        reel.innerHTML = '';
-
+        reel.style.transition = 'none'; reel.style.top = '0px'; reel.innerHTML = '';
         const numSymbolsInReel = 25 + (reelIndex * 5);
         
         for (let i = 0; i < numSymbolsInReel; i++) {
             const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
             const div = document.createElement('div');
-            div.className = 'symbol';
-            div.innerText = randomSymbol;
+            div.className = 'symbol'; div.innerText = randomSymbol;
             reel.appendChild(div);
         }
 
-        finalResult.push(reel.children[numSymbolsInReel - 2].innerText);
+        // Запоминаем три финальных видимых символа для этого барабана
+        // Верхний ряд (индекс -3), Центральный ряд (индекс -2), Нижний ряд (индекс -1)
+        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 3].innerText); // Верх
+        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 2].innerText); // Центр
+        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 1].innerText); // Низ
 
         setTimeout(() => {
             reel.style.transition = `top ${2 + reelIndex * 0.5}s cubic-bezier(0.1, 0.9, 0.2, 1)`;
@@ -151,36 +147,55 @@ spinBtn.addEventListener('click', () => {
     });
 
     setTimeout(() => {
-        clearInterval(tickInterval); // Останавливаем звук кручения
-        checkResult(finalResult);
+        clearInterval(tickInterval);
+        checkResult(finalMatrix);
         spinBtn.disabled = false;
     }, 3200);
 });
 
-function checkResult(result) {
-    const [sym1, sym2, sym3] = result;
+function checkResult(matrix) {
+    // Формируем тройки символов для каждой из 3 линий
+    const linesToCheck = [
+        { id: 1, name: "Центр", symbols: [matrix[0][1], matrix[1][1], matrix[2][1]] }, // Линия 1
+        { id: 2, name: "Верх",  symbols: [matrix[0][0], matrix[1][0], matrix[2][0]] }, // Линия 2
+        { id: 3, name: "Низ",   symbols: [matrix[0][2], matrix[1][2], matrix[2][2]] }  // Линия 3
+    ];
 
-    if (sym1 === sym2 && sym2 === sym3) {
-        let prize = bet * 15;
-        if (sym1 === '💎') prize = bet * 50;
-        if (sym1 === '7️⃣') prize = bet * 100;
+    let totalWin = 0;
+    let winDetails = [];
 
-        balance += prize;
+    // Проверяем только те линии, которые оплатил игрок
+    linesToCheck.forEach(line => {
+        if (line.id <= activeLines) {
+            const [s1, s2, s3] = line.symbols;
+
+            if (s1 === s2 && s2 === s3) {
+                let coeff = 15; // Любые 3 в ряд
+                if (s1 === '🦊') coeff = 20;
+                if (s1 === '🐼') coeff = 40;
+                if (s1 === '🦁') coeff = 100;
+
+                let linePrize = betPerLine * coeff;
+                totalWin += linePrize;
+                winDetails.push(`3х ${s1} (${line.name})`);
+            } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+                let linePrize = betPerLine * 2;
+                totalWin += linePrize;
+                winDetails.push(`2х совпадения (${line.name})`);
+            }
+        }
+    });
+
+    if (totalWin > 0) {
+        balance += totalWin;
         balanceDisplay.innerText = balance;
-        messageDisplay.innerText = `🎉 ДЖЕКПОТ! +${prize} 🪙 (${sym1}${sym2}${sym3})`;
+        messageDisplay.innerText = `🎉 ВЫИГРЫШ: +${totalWin} 🪙\n[ ${winDetails.join(', ')} ]`;
         messageDisplay.className = "message win";
-        playWinSound(); // Звук победы
-    } else if (sym1 === sym2 || sym2 === sym3 || sym1 === sym3) {
-        let prize = bet * 2;
-        balance += prize;
-        balanceDisplay.innerText = balance;
-        messageDisplay.innerText = `👍 Два совпадения: +${prize} 🪙`;
-        messageDisplay.className = "message win";
-        playWinSound(); // Звук победы
+        playWinSound();
     } else {
-        messageDisplay.innerText = "❌ Не повезло. Крути еще!";
+        messageDisplay.innerText = "❌ Нет совпадений по линиям.";
         messageDisplay.className = "message lose";
-        playTickSound(150, 0.2); // Глухой звук проигрыша
+        playTickSound(130, 0.15);
     }
 
     saveBalance();
