@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>Telegram Slots WebApp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <button id="info-btn" class="info-icon">ℹ️</button>
+
+    <div class="casino-container">
+        <h1>🎰 TG SLOTS 🎰</h1>
+        
+        <div class="balance-container">
+            Баланс: <span id="balance">1000</span> 🪙
+        </div>
+
+        <div class="slot-machine">
+            <div class="reel">
+                <div class="reel-container" id="reel1"></div>
+            </div>
+            <div class="reel">
+                <div class="reel-container" id="reel2"></div>
+            </div>
+            <div class="reel">
+                <div class="reel-container" id="reel3"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="bet-selection">
+                <button class="bet-btn active" data-bet="10">Ставка: 10</button>
+                <button class="bet-btn" data-bet="50">Ставка: 50</button>
+                <button class="bet-btn" data-bet="100">Ставка: 100</button>
+            </div>
+            <button id="spin-btn">КРУТИТЬ 🎰</button>
+        </div>
+        
+        <div id="message" class="message">Испытай свою удачу!</div>
+    </div>
+
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Таблица выигрышей</h2>
+            <table class="pay-table">
+                <tr><th>Комбинация</th><th>Выигрыш</th></tr>
+                <tr><td>7️⃣ 7️⃣ 7️⃣</td><td>Ставка х100 🔥</td></tr>
+                <tr><td>💎 💎 💎</td><td>Ставка х50 💎</td></tr>
+                <tr><td>Любые 3 в ряд</td><td>Ставка х15 🎉</td></tr>
+                <tr><td>Любые 2 совпадения</td><td>Ставка х2 👍</td></tr>
+            </table>
+            <button id="close-modal-btn">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
