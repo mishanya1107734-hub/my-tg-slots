@@ -1,17 +1,19 @@
-// Новые крутые иконки животных
 const symbols = ['🦁', '🐼', '🦊', '🐸', '🐵', '🐰'];
 
 let balance = parseInt(localStorage.getItem('casino_balance')) || 1000;
 let betPerLine = 10; 
 let activeLines = 1;
+let isAutoPlaying = false;
+let lastBonusTime = parseInt(localStorage.getItem('casino_last_bonus')) || 0;
 
 const balanceDisplay = document.getElementById('balance');
 const totalBetDisplay = document.getElementById('total-bet');
 const spinBtn = document.getElementById('spin-btn');
+const autoBtn = document.getElementById('auto-btn');
+const bonusBtn = document.getElementById('bonus-btn');
 const messageDisplay = document.getElementById('message');
 const betButtons = document.querySelectorAll('.bet-btn');
 const lineButtons = document.querySelectorAll('.line-btn');
-
 const modal = document.getElementById('modal');
 const infoBtn = document.getElementById('info-btn');
 const closeModalBtn = document.getElementById('close-modal-btn');
@@ -41,21 +43,52 @@ function playTickSound(frequency = 300, duration = 0.05) {
 
 function playWinSound() {
     initAudio();
-    setTimeout(() => playTickSound(587.33, 0.12), 0);
-    setTimeout(() => playTickSound(739.99, 0.12), 120);
-    setTimeout(() => playTickSound(880.00, 0.12), 240);
-    setTimeout(() => playTickSound(1174.66, 0.3), 360);
+    setTimeout(() => playTickSound(523.25, 0.1), 0);
+    setTimeout(() => playTickSound(659.25, 0.1), 100);
+    setTimeout(() => playTickSound(783.99, 0.1), 200);
+    setTimeout(() => playTickSound(1046.50, 0.25), 300);
 }
 
 function updateLayout() {
     totalBetDisplay.innerText = betPerLine * activeLines;
-    // Подсвечиваем точки-индикаторы линий слева от барабанов
     for (let i = 1; i <= 3; i++) {
         const dot = document.getElementById(`dot-${i}`);
         if (i <= activeLines) dot.classList.add('active');
         else dot.classList.remove('active');
     }
+    checkBonusTimer();
 }
+
+// ПРОВЕРКА ТАЙМЕРА БОНУСА (Раз в 1 минуту для теста, можно изменить на 24 часа)
+function checkBonusTimer() {
+    const now = Date.now();
+    const cooldown = 60 * 1000; // 1 минута в миллисекундах
+    
+    if (now - lastBonusTime >= cooldown) {
+        bonusBtn.disabled = false;
+        bonusBtn.innerText = "🎁 Бонус!";
+    } else {
+        bonusBtn.disabled = true;
+        const timeLeft = Math.ceil((cooldown - (now - lastBonusTime)) / 1000);
+        bonusBtn.innerText = `⏳ ${timeLeft}с`;
+    }
+}
+setInterval(checkBonusTimer, 1000);
+
+// Клик по кнопке бонуса
+bonusBtn.addEventListener('click', () => {
+    initAudio();
+    const freeCoins = Math.floor(Math.random() * 400) + 100; // от 100 до 500 монет
+    balance += freeCoins;
+    balanceDisplay.innerText = balance;
+    lastBonusTime = Date.now();
+    localStorage.setItem('casino_last_bonus', lastBonusTime);
+    saveBalance();
+    playWinSound();
+    messageDisplay.innerText = `🎁 Вы получили ежедневный бонус: +${freeCoins} 🪙!`;
+    messageDisplay.className = "message win";
+    checkBonusTimer();
+});
 
 function initReels() {
     reels.forEach(reel => {
@@ -70,7 +103,7 @@ function initReels() {
     updateLayout();
 }
 
-// Переключение линий
+// Переключение линий и ставок
 lineButtons.forEach(button => {
     button.addEventListener('click', () => {
         if (spinBtn.disabled) return;
@@ -81,8 +114,6 @@ lineButtons.forEach(button => {
         updateLayout();
     });
 });
-
-// Переключение ставок
 betButtons.forEach(button => {
     button.addEventListener('click', () => {
         if (spinBtn.disabled) return;
@@ -98,14 +129,39 @@ infoBtn.addEventListener('click', () => { initAudio(); modal.classList.add('open
 closeModalBtn.addEventListener('click', () => modal.classList.remove('open'));
 function saveBalance() { localStorage.setItem('casino_balance', balance); }
 
+// Логика кнопки АВТО
+autoBtn.addEventListener('click', () => {
+    initAudio();
+    if (isAutoPlaying) {
+        stopAutoPlay();
+    } else {
+        isAutoPlaying = true;
+        autoBtn.classList.add('active');
+        autoBtn.innerText = "СТОП 🛑";
+        startSpin();
+    }
+});
+
+function stopAutoPlay() {
+    isAutoPlaying = false;
+    autoBtn.classList.remove('active');
+    autoBtn.innerText = "АВТО 🔄";
+}
+
 spinBtn.addEventListener('click', () => {
+    stopAutoPlay(); // Обычный клик отменяет авто-режим
+    startSpin();
+});
+
+function startSpin() {
     initAudio();
     const totalBet = betPerLine * activeLines;
 
     if (balance < totalBet) {
-        messageDisplay.innerText = "🚨 Мало монет! Начислен бонус 500 фантиков.";
+        messageDisplay.innerText = "🚨 Мало монет! Спин остановлен.";
         messageDisplay.className = "message lose";
-        balance = 500; balanceDisplay.innerText = balance; saveBalance();
+        stopAutoPlay();
+        spinBtn.disabled = false;
         return;
     }
 
@@ -114,16 +170,23 @@ spinBtn.addEventListener('click', () => {
     saveBalance();
     
     spinBtn.disabled = true;
-    messageDisplay.innerText = "🐾 Охота началась, крутим...";
+    betButtons.forEach(b => b.disabled = true);
+    lineButtons.forEach(b => b.disabled = true);
+    
+    messageDisplay.innerText = "🐾 Охота началась, барабаны крутятся...";
     messageDisplay.className = "message";
 
-    // Двумерный массив, куда соберем ВСЕ видимые в конце символы (3 барабана х 3 строки)
     const finalMatrix = [[], [], []]; 
-
     let tickInterval = setInterval(() => { playTickSound(250 + Math.random() * 80, 0.02); }, 100);
 
     reels.forEach((reel, reelIndex) => {
-        reel.style.transition = 'none'; reel.style.top = '0px'; reel.innerHTML = '';
+        reel.style.transition = 'none'; 
+        reel.style.top = '0px'; 
+        reel.innerHTML = '';
+        
+        // Включаем эффект размытия (Motion Blur)
+        reel.classList.add('blur');
+
         const numSymbolsInReel = 25 + (reelIndex * 5);
         
         for (let i = 0; i < numSymbolsInReel; i++) {
@@ -133,55 +196,98 @@ spinBtn.addEventListener('click', () => {
             reel.appendChild(div);
         }
 
-        // Запоминаем три финальных видимых символа для этого барабана
-        // Верхний ряд (индекс -3), Центральный ряд (индекс -2), Нижний ряд (индекс -1)
-        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 3].innerText); // Верх
-        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 2].innerText); // Центр
-        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 1].innerText); // Низ
+        // Записываем финальные элементы
+        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 3]); // Верхний HTML элемент
+        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 2]); // Центральный HTML элемент
+        finalMatrix[reelIndex].push(reel.children[numSymbolsInReel - 1]); // Нижний HTML элемент
 
         setTimeout(() => {
             reel.style.transition = `top ${2 + reelIndex * 0.5}s cubic-bezier(0.1, 0.9, 0.2, 1)`;
             const travelDistance = (numSymbolsInReel - 3) * symbolHeight;
             reel.style.top = `-${travelDistance}px`;
         }, 50);
+
+        // Отключаем размытие незадолго до остановки барабана
+        setTimeout(() => {
+            reel.classList.remove('blur');
+        }, 1800 + reelIndex * 500);
     });
 
     setTimeout(() => {
         clearInterval(tickInterval);
         checkResult(finalMatrix);
-        spinBtn.disabled = false;
     }, 3200);
-});
+}
 
+// УМНЫЙ АЛГОРИТМ ПРОВЕРКИ ЛИНИЙ И ДЖОКЕРА (WILD)
 function checkResult(matrix) {
-    // Формируем тройки символов для каждой из 3 линий
+    // Массив линий, хранящий сами HTML-элементы для последующей подсветки
     const linesToCheck = [
-        { id: 1, name: "Центр", symbols: [matrix[0][1], matrix[1][1], matrix[2][1]] }, // Линия 1
-        { id: 2, name: "Верх",  symbols: [matrix[0][0], matrix[1][0], matrix[2][0]] }, // Линия 2
-        { id: 3, name: "Низ",   symbols: [matrix[0][2], matrix[1][2], matrix[2][2]] }  // Линия 3
+        { id: 1, name: "Центр", elements: [matrix[0][1], matrix[1][1], matrix[2][1]] },
+        { id: 2, name: "Верх",  elements: [matrix[0][0], matrix[1][0], matrix[2][0]] },
+        { id: 3, name: "Низ",   elements: [matrix[0][2], matrix[1][2], matrix[2][2]] }
     ];
 
     let totalWin = 0;
     let winDetails = [];
 
-    // Проверяем только те линии, которые оплатил игрок
     linesToCheck.forEach(line => {
         if (line.id <= activeLines) {
-            const [s1, s2, s3] = line.symbols;
+            const textSymbols = line.elements.map(el => el.innerText);
+            
+            // Считаем сколько Львов (WILD) на линии
+            const wildCount = textSymbols.filter(s => s === '🦁').length;
+            
+            let isWin3 = false;
+            let isWin2 = false;
+            let winningSymbol = '';
 
-            if (s1 === s2 && s2 === s3) {
-                let coeff = 15; // Любые 3 в ряд
-                if (s1 === '🦊') coeff = 20;
-                if (s1 === '🐼') coeff = 40;
-                if (s1 === '🦁') coeff = 100;
+            if (wildCount === 3) {
+                // Три льва — максимальный джекпот
+                isWin3 = true;
+                winningSymbol = '🦁';
+            } else {
+                // Находим все уникальные символы на линии, кроме Льва
+                const nonWilds = textSymbols.filter(s => s !== '🦁');
+                const uniqueNonWilds = [...new Set(nonWilds)];
 
-                let linePrize = betPerLine * coeff;
-                totalWin += linePrize;
-                winDetails.push(`3х ${s1} (${line.name})`);
-            } else if (s1 === s2 || s2 === s3 || s1 === s3) {
-                let linePrize = betPerLine * 2;
-                totalWin += linePrize;
+                if (uniqueNonWilds.length === 1) {
+                    // Если без львов остался один тип животного, значит львы дополнили его до 3 в ряд!
+                    isWin3 = true;
+                    winningSymbol = uniqueNonWilds[0];
+                } else if (uniqueNonWilds.length === 2 && wildCount > 0) {
+                    // Если есть лев и два разных символа — это гарантированно пара (2 совпадения)
+                    isWin2 = true;
+                    winningSymbol = uniqueNonWilds[0]; // берем любой для расчета
+                } else if (uniqueNonWilds.length === 2 && wildCount === 0) {
+                    // Львов нет, но два символа совпали сами по себе
+                    if (textSymbols[0] === textSymbols[1] || textSymbols[1] === textSymbols[2] || textSymbols[0] === textSymbols[2]) {
+                        isWin2 = true;
+                    }
+                }
+            }
+
+            // Начисление призов и запуск анимации для конкретных элементов линии
+            if (isWin3) {
+                let coeff = 15;
+                if (winningSymbol === '🦊') coeff = 20;
+                if (winningSymbol === '🐼') coeff = 40;
+                if (winningSymbol === '🦁') coeff = 100;
+
+                totalWin += betPerLine * coeff;
+                winDetails.push(`3х ${winningSymbol} (${line.name})`);
+                line.elements.forEach(el => el.classList.add('winner')); // Запускаем пульсацию
+            } else if (isWin2) {
+                totalWin += betPerLine * 2;
                 winDetails.push(`2х совпадения (${line.name})`);
+                
+                // Подсвечиваем только совпадающие элементы на линии
+                if (textSymbols[0] === textSymbols[1] || textSymbols[0] === '🦁' || textSymbols[1] === '🦁') {
+                    line.elements[0].classList.add('winner'); line.elements[1].classList.add('winner');
+                }
+                if (textSymbols[1] === textSymbols[2] || textSymbols[2] === '🦁') {
+                    line.elements[1].classList.add('winner'); line.elements[2].classList.add('winner');
+                }
             }
         }
     });
@@ -193,12 +299,26 @@ function checkResult(matrix) {
         messageDisplay.className = "message win";
         playWinSound();
     } else {
-        messageDisplay.innerText = "❌ Нет совпадений по линиям.";
+        messageDisplay.innerText = "❌ Нет совпадений.\nПопробуй еще раз!";
         messageDisplay.className = "message lose";
         playTickSound(130, 0.15);
     }
 
     saveBalance();
+
+    // Разблокируем кнопки ставок и линий, если авто-игра выключена
+    setTimeout(() => {
+        if (!isAutoPlaying) {
+            spinBtn.disabled = false;
+            betButtons.forEach(b => b.disabled = false);
+            lineButtons.forEach(b => b.disabled = false);
+        } else {
+            // Если включен режим АВТО — ждем 1.5 секунды и крутим заново сами
+            setTimeout(() => {
+                if (isAutoPlaying) startSpin();
+            }, 1500);
+        }
+    }, 500);
 }
 
 initReels();

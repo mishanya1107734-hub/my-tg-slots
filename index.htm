@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>ZOO Slots Premium WebApp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <button id="info-btn" class="info-icon">ℹ️</button>
+
+    <div class="casino-container">
+        <div class="top-bar">
+            <h1>🐾 ZOO SLOTS 🐾</h1>
+            <!-- Кнопка Ежедневного бонуса -->
+            <button id="bonus-btn" class="bonus-button">🎁 Бонус</button>
+        </div>
+        
+        <div class="balance-container">
+            Баланс: <span id="balance">1000</span> 🪙
+        </div>
+
+        <div class="slot-machine-wrapper">
+            <div class="line-indicators">
+                <div class="line-dot L1" id="dot-1">1</div>
+                <div class="line-dot L2" id="dot-2">2</div>
+                <div class="line-dot L3" id="dot-3">3</div>
+            </div>
+
+            <div class="slot-machine">
+                <div class="reel"><div class="reel-container" id="reel1"></div></div>
+                <div class="reel"><div class="reel-container" id="reel2"></div></div>
+                <div class="reel"><div class="reel-container" id="reel3"></div></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <p class="control-label">АКТИВНЫЕ ЛИНИИ:</p>
+            <div class="selector-row">
+                <button class="line-btn active" data-lines="1">1 Линия</button>
+                <button class="line-btn" data-lines="2">2 Линии</button>
+                <button class="line-btn" data-lines="3">3 Линии</button>
+            </div>
+
+            <p class="control-label">СТАВКА НА ЛИНИЮ:</p>
+            <div class="selector-row">
+                <button class="bet-btn active" data-bet="10">10</button>
+                <button class="bet-btn" data-bet="50">50</button>
+                <button class="bet-btn" data-bet="100">100</button>
+            </div>
+            
+            <div class="total-bet-badge">
+                Общая ставка: <span id="total-bet">10</span> 🪙
+            </div>
+
+            <!-- Две кнопки управления: Играть и Авто -->
+            <div class="action-buttons">
+                <button id="spin-btn">ИГРАТЬ 🐾</button>
+                <button id="auto-btn">АВТО 🔄</button>
+            </div>
+        </div>
+        
+        <div id="message" class="message">Удачи, звериный вожак!</div>
+    </div>
+
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Звериные коэффициенты</h2>
+            <table class="pay-table">
+                <tr><th>Зверь</th><th>3 в ряд</th></tr>
+                <tr><td>🦁 Лев (WILD)</td><td>Заменяет ВСЕХ! х100</td></tr>
+                <tr><td>🐼 Панда</td><td>х40 🎋</td></tr>
+                <tr><td>🦊 Лиса</td><td>х20 🦊</td></tr>
+                <tr><td>🐸 Лягушка</td><td>х10 🐸</td></tr>
+                <tr><td>Любые 2 совпадения</td><td>х2 👍</td></tr>
+            </table>
+            <p style="font-size: 11px; color: #aaa; margin-top: 10px;">Лев (WILD) подстраивается под любой символ для максимальной победы!</p>
+            <button id="close-modal-btn">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
