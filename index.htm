@@ -18,10 +18,11 @@
         </div>
         
         <div class="balance-container">
-            Баланс: <span id="balance">1000</span> 🪙
+            Баланс: <span id="balance">1000</span> 🟡
         </div>
 
         <div class="slot-machine-wrapper">
+            <!-- Визуальные маркеры линий слева -->
             <div class="line-indicators">
                 <div class="line-dot L1" id="dot-1">1</div>
                 <div class="line-dot L2" id="dot-2">2</div>
@@ -36,6 +37,7 @@
         </div>
 
         <div class="controls">
+            <!-- Выбор количества линий -->
             <p class="control-label">АКТИВНЫЕ ЛИНИИ:</p>
             <div class="selector-row">
                 <button class="line-btn active" data-lines="1">1 Линия</button>
@@ -43,6 +45,7 @@
                 <button class="line-btn" data-lines="3">3 Линии</button>
             </div>
 
+            <!-- Выбор ставки -->
             <p class="control-label">СТАВКА НА ЛИНИЮ:</p>
             <div class="selector-row">
                 <button class="bet-btn active" data-bet="10">10</button>
@@ -51,7 +54,7 @@
             </div>
             
             <div class="total-bet-badge">
-                Общая ставка: <span id="total-bet">10</span> 🪙
+                Общая ставка: <span id="total-bet">10</span> 🟡
             </div>
 
             <!-- Две кнопки управления: Играть и Авто -->
@@ -64,6 +67,7 @@
         <div id="message" class="message">Удачи, звериный вожак!</div>
     </div>
 
+    <!-- Обновленная таблица выигрышей с учетом механики WILD -->
     <div id="modal" class="modal-overlay">
         <div class="modal-content">
             <h2>Звериные коэффициенты</h2>
@@ -75,7 +79,7 @@
                 <tr><td>🐸 Лягушка</td><td>х10 🐸</td></tr>
                 <tr><td>Любые 2 совпадения</td><td>х2 👍</td></tr>
             </table>
-            <p style="font-size: 11px; color: #aaa; margin-top: 10px;">Лев (WILD) подстраивается под любой символ для максимальной победы!</p>
+            <p style="font-size: 11px; color: #aaa; margin-top: 10px;">Лев (WILD) подстраивается под любой символ на линии для максимальной победы!</p>
             <button id="close-modal-btn">Закрыть</button>
         </div>
     </div>
