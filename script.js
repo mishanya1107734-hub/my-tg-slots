@@ -25,7 +25,7 @@ const reels = [
     document.getElementById('reel3')
 ];
 
-const symbolHeight = 80; 
+const symbolHeight = 65; 
 
 // Звуковой движок
 let audioCtx = null;
